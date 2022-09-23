@@ -179,6 +179,9 @@
     <Filter Include="src\Examples\Stereo-Inertial">
       <UniqueIdentifier>{79e289eb-e6d9-4ebd-8a47-921b39f9ba1f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Unity">
+      <UniqueIdentifier>{0ac069f5-c6ef-4b71-9a0b-d6f60dda8ee9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="global.cpp">
@@ -417,6 +420,9 @@
     </ClCompile>
     <ClCompile Include="Examples\Stereo-Inertial\stereo_inertial_tum_vi.cpp">
       <Filter>src\Examples\Stereo-Inertial</Filter>
+    </ClCompile>
+    <ClCompile Include="Unity.cpp">
+      <Filter>src\Unity</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1538,6 +1544,9 @@
     </ClInclude>
     <ClInclude Include="Eigen\src\UmfPackSupport\UmfPackSupport.h">
       <Filter>src\Eigen\src\UmfPackSupport</Filter>
+    </ClInclude>
+    <ClInclude Include="Unity.h">
+      <Filter>src\Unity</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

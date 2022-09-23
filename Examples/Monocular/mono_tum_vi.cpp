@@ -52,6 +52,13 @@ int mono_tum_vi(int argc, char **argv)
     if(argc < 4)
     {
         cerr << endl << "Usage: ./mono_tum_vi path_to_vocabulary path_to_settings path_to_image_folder_1 path_to_times_file_1 (path_to_image_folder_2 path_to_times_file_2 ... path_to_image_folder_N path_to_times_file_N) (trajectory_file_name)" << endl;
+        ///               Ex:    ./mono_tum_vi  
+        ///                      path_to_vocabulary:        Vocabulary/ORBvoc.txt 
+        ///                      path_to_settings:          Examples/Monocular-Inertial/TUM_512.yaml 
+        ///                      path_to_image_folder_1:    A:/Datasets/dataset-corridor1_512_16/mav0/cam0/data 
+        ///                      path_to_times_file_1:      Examples/Monocular-Inertial/TUM_TimeStamps/dataset-corridor1_512.txt 
+        ///                      trajectory_file_name:      Examples/Monocular-Inertial/TUM_IMU/dataset-corridor1_512.txt
+        ///                      bFileName:                 dataset-corridor1_512_monoi
         return 1;
     }
 
@@ -90,6 +97,7 @@ int mono_tum_vi(int argc, char **argv)
     cout.precision(17);
 
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
+    // [1]: Vocab, [2]: Settings, [3]: Sensor, [useViewer]
     ORB_SLAM3::System SLAM(argv[1],argv[2],ORB_SLAM3::System::MONOCULAR,true);
 
     int proccIm = 0;

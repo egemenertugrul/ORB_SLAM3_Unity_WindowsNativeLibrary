@@ -8,4 +8,7 @@
     <LocalDebuggerCommandArguments>mono_inertial_tum_vi Vocabulary/ORBvoc.txt Examples/Monocular-Inertial/TUM_512.yaml D:/vbox/shared/SLAM/TUM_VI/dataset-magistrale1_512_16/mav0/cam0/data Examples/Monocular-Inertial/TUM_TimeStamps/dataset-magistrale1_512.txt Examples/Monocular-Inertial/TUM_IMU/dataset-magistrale1_512.txt dataset-magistrale1_512_monoi</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
+  <PropertyGroup>
+    <ShowAllFiles>false</ShowAllFiles>
+  </PropertyGroup>
 </Project>

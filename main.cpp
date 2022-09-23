@@ -1,7 +1,6 @@
 
 #include "global.h"
 
-
 // Monocular
 int mono_euroc(int argc, char** argv);
 int mono_kitti(int argc, char** argv);

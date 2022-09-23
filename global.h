@@ -7,6 +7,13 @@
 #include <windows.h>
 
 
+#if defined(_MSC_VER)
+#define EXPORT extern "C" __declspec(dllexport)
+#else
+#define EXPORT extern "C" __attribute__ ((visibility ("default")))
+#endif
+
+
 #define USE_BINARY_VOC  // Reading "ORBvoc.txt" in binary format to speed-up on Windows
 //#define USE_BOOST     // Use boost library
 

@@ -3,3 +3,10 @@
 
 .vs
 x64
+Debug
+Release
+log
+packages
+Vocabulary/*
+
+!*.gitkeep

@@ -40,6 +40,167 @@ namespace ORB_SLAM3
 
 Verbose::eLevel Verbose::th = Verbose::VERBOSITY_NORMAL;
 
+System::System(const bool bOverride, const string& strVocFile, const string& strSettingsFile, const eSensor sensor):
+    mSensor(sensor), mbReset(false), mbResetActiveMap(false),
+    mbActivateLocalizationMode(false), mbDeactivateLocalizationMode(false) {
+    
+    const string strSequence = "Seq";
+
+    cout << "Input sensor was set to: ";
+
+    if (mSensor == MONOCULAR)
+        cout << "Monocular" << endl;
+    else if (mSensor == STEREO)
+        cout << "Stereo" << endl;
+    else if (mSensor == RGBD)
+        cout << "RGB-D" << endl;
+    else if (mSensor == IMU_MONOCULAR)
+        cout << "Monocular-Inertial" << endl;
+    else if (mSensor == IMU_STEREO)
+        cout << "Stereo-Inertial" << endl;
+
+    //Check settings file
+    cv::FileStorage fsSettings(strSettingsFile.c_str(), cv::FileStorage::READ);
+    if (!fsSettings.isOpened())
+    {
+        cerr << "Failed to open settings file at: " << strSettingsFile << endl;
+        exit(-1);
+    }
+
+    bool loadedAtlas = false;
+
+    //----
+    //Load ORB Vocabulary
+    cout << endl << "Loading ORB Vocabulary. This could take a while..." << endl;
+
+    mpVocabulary = new ORBVocabulary();
+    bool bVocLoad = mpVocabulary->loadFromTextFile(strVocFile);
+    if (!bVocLoad)
+    {
+        cerr << "Wrong path to vocabulary. " << endl;
+        cerr << "Falied to open at: " << strVocFile << endl;
+        exit(-1);
+    }
+    cout << "Vocabulary loaded!" << endl << endl;
+
+    //Create KeyFrame Database
+    mpKeyFrameDatabase = new KeyFrameDatabase(*mpVocabulary);
+
+    //Create the Atlas
+    //mpMap = new Map();
+    mpAtlas = new Atlas(0);
+
+    if (mSensor == IMU_STEREO || mSensor == IMU_MONOCULAR)
+        mpAtlas->SetInertialSensor();
+
+    //Create Drawers. These are used by the Viewer
+    mpFrameDrawer = new FrameDrawer(mpAtlas);
+    mpMapDrawer = new MapDrawer(mpAtlas, strSettingsFile);
+
+    cout << "Starting sequence" << endl;
+    mpTracker = new Tracking(this, mpVocabulary, mpFrameDrawer, mpMapDrawer,
+        mpAtlas, mpKeyFrameDatabase, strSettingsFile, mSensor, strSequence);
+
+    //Initialize the Local Mapping thread and launch
+    mpLocalMapper = new LocalMapping(this, mpAtlas, mSensor == MONOCULAR || mSensor == IMU_MONOCULAR, mSensor == IMU_MONOCULAR || mSensor == IMU_STEREO, strSequence);
+    mptLocalMapping = new thread(&ORB_SLAM3::LocalMapping::Run, mpLocalMapper);
+    mpLocalMapper->mInitFr = true;
+    mpLocalMapper->mThFarPoints = fsSettings["thFarPoints"];
+    if (mpLocalMapper->mThFarPoints != 0)
+    {
+        cout << "Discard points further than " << mpLocalMapper->mThFarPoints << " m from current camera" << endl;
+        mpLocalMapper->mbFarPoints = true;
+    }
+    else
+        mpLocalMapper->mbFarPoints = false;
+
+    //Initialize the Loop Closing thread and launch
+    // mSensor!=MONOCULAR && mSensor!=IMU_MONOCULAR
+    mpLoopCloser = new LoopClosing(mpAtlas, mpKeyFrameDatabase, mpVocabulary, mSensor != MONOCULAR); // mSensor!=MONOCULAR);
+    mptLoopClosing = new thread(&ORB_SLAM3::LoopClosing::Run, mpLoopCloser);
+
+    //Set pointers between threads
+    mpTracker->SetLocalMapper(mpLocalMapper);
+    mpTracker->SetLoopClosing(mpLoopCloser);
+
+    mpLocalMapper->SetTracker(mpTracker);
+    mpLocalMapper->SetLoopCloser(mpLoopCloser);
+
+    mpLoopCloser->SetTracker(mpTracker);
+    mpLoopCloser->SetLocalMapper(mpLocalMapper);
+
+    // Fix verbosity
+    Verbose::SetTh(Verbose::VERBOSITY_QUIET);
+}
+
+cv::Mat System::Execute(const string& imagePath, const double& timestamp) {
+    // Main loop
+    cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE(3.0, cv::Size(8, 8));
+
+    cv::Mat im;
+    // Read image from file
+    im = cv::imread(imagePath, cv::IMREAD_GRAYSCALE);
+
+    // clahe
+    clahe->apply(im, im);
+
+
+    // cout << "mat type: " << im.type() << endl;
+
+    if (im.empty())
+    {
+        cerr << endl << "Failed to load image at: "
+            << imagePath << endl;
+    }
+//#ifdef COMPILEDWITHC11
+//    std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
+//#else
+//    std::chrono::monotonic_clock::time_point t1 = std::chrono::monotonic_clock::now();
+//#endif
+//
+//    // Pass the image to the SLAM system
+//
+//#ifdef COMPILEDWITHC11
+//    std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
+//#else
+//    std::chrono::monotonic_clock::time_point t2 = std::chrono::monotonic_clock::now();
+//#endif
+//
+//    double ttrack = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count();   
+
+    return TrackMonocular(im, timestamp); // TODO change to monocular_inertial
+}
+
+cv::Mat System::Execute(const cv::Mat& image, const double& timestamp) {
+    // Main loop
+    cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE(3.0, cv::Size(8, 8));
+
+    cv::Mat grayImage(image.rows, image.cols, CV_8UC1);
+    cv::cvtColor(image, grayImage, cv::COLOR_RGBA2GRAY);
+
+    // clahe
+    clahe->apply(grayImage, grayImage);
+
+    //#ifdef COMPILEDWITHC11
+    //    std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
+    //#else
+    //    std::chrono::monotonic_clock::time_point t1 = std::chrono::monotonic_clock::now();
+    //#endif
+    //
+    //    // Pass the image to the SLAM system
+    //
+    //#ifdef COMPILEDWITHC11
+    //    std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
+    //#else
+    //    std::chrono::monotonic_clock::time_point t2 = std::chrono::monotonic_clock::now();
+    //#endif
+    //
+    //    double ttrack = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count();   
+
+    return TrackMonocular(grayImage, timestamp); // TODO change to monocular_inertial
+}
+
+
 System::System(const string &strVocFile, const string &strSettingsFile, const eSensor sensor,
                const bool bUseViewer, const int initFr, const string &strSequence, const string &strLoadingFile):
     mSensor(sensor), mpViewer(static_cast<Viewer*>(NULL)), mbReset(false), mbResetActiveMap(false),
@@ -398,14 +559,14 @@ cv::Mat System::TrackMonocular(const cv::Mat &im, const double &timestamp, const
         for(size_t i_imu = 0; i_imu < vImuMeas.size(); i_imu++)
             mpTracker->GrabImuData(vImuMeas[i_imu]);
 
-    cv::Mat Tcw = mpTracker->GrabImageMonocular(im,timestamp,filename);
+    cv::Mat mTcw = mpTracker->GrabImageMonocular(im,timestamp,filename);
 
     unique_lock<mutex> lock2(mMutexState);
     mTrackingState = mpTracker->mState;
     mTrackedMapPoints = mpTracker->mCurrentFrame.mvpMapPoints;
     mTrackedKeyPointsUn = mpTracker->mCurrentFrame.mvKeysUn;
-
-    return Tcw;
+    
+    return mTcw;
 }
 
 

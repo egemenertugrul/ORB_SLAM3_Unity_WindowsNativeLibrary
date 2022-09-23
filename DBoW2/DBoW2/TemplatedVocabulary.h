@@ -1548,7 +1548,7 @@ bool TemplatedVocabulary<TDescriptor, F>::loadFromTextFile(const std::string& fi
 
     m_words.reserve(pow((double)m_k, (double)m_L + 1));
 
-    if ((fpnodes = fopen("Vocabulary\\ORBvoc.bin", "rb")) == NULL)
+    if ((fpnodes = fopen(filename.c_str(), "rb")) == NULL)
         printf("ORBvoc.bin open error!\n");
     m_nodes.resize(1);
     m_nodes[0].id = 0;

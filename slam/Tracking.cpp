@@ -2089,7 +2089,7 @@ bool Tracking::TrackLocalMap()
     }
     else
     {
-        if(mnMatchesInliers<30)
+        if(mnMatchesInliers<15) // changed from 30 to 15
             return false;
         else
             return true;
