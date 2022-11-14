@@ -104,8 +104,11 @@ namespace ORB_SLAM3
 		// Initialize the SLAM system. It launches the Local Mapping, Loop Closing and Viewer threads.
 		System(const string& strVocFile, const string& strSettingsFile, const eSensor sensor, const bool bUseViewer = true, const int initFr = 0, const string& strSequence = std::string(), const string& strLoadingFile = std::string());
 		
-		cv::Mat Execute(const string& imagePath, const double& timestamp);
 		cv::Mat Execute(const cv::Mat& image, const double& timestamp);
+		cv::Mat Execute(const string& imagePath, const double& timestamp);
+
+		cv::Mat Execute(const cv::Mat& image, const double& timestamp, const vector<IMU::Point>& vImuMeas);
+		cv::Mat Execute(const string& imagePath, const double& timestamp, const vector<IMU::Point>& vImuMeas);
 
 		// Proccess the given stereo frame. Images must be synchronized and rectified.
 		// Input images: RGB (CV_8UC3) or grayscale (CV_8U). RGB is converted to grayscale.

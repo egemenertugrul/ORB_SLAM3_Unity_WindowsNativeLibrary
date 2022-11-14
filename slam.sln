@@ -9,14 +9,20 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
+		Executable|x64 = Executable|x64
+		Executable|x86 = Executable|x86
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{0BEEA9BC-19DB-4D12-8005-90916F84A166}.Debug|x64.ActiveCfg = Debug|Win32
-		{0BEEA9BC-19DB-4D12-8005-90916F84A166}.Debug|x64.Build.0 = Debug|Win32
+		{0BEEA9BC-19DB-4D12-8005-90916F84A166}.Debug|x64.ActiveCfg = Debug|x64
+		{0BEEA9BC-19DB-4D12-8005-90916F84A166}.Debug|x64.Build.0 = Debug|x64
 		{0BEEA9BC-19DB-4D12-8005-90916F84A166}.Debug|x86.ActiveCfg = Debug|Win32
 		{0BEEA9BC-19DB-4D12-8005-90916F84A166}.Debug|x86.Build.0 = Debug|Win32
+		{0BEEA9BC-19DB-4D12-8005-90916F84A166}.Executable|x64.ActiveCfg = Executable|x64
+		{0BEEA9BC-19DB-4D12-8005-90916F84A166}.Executable|x64.Build.0 = Executable|x64
+		{0BEEA9BC-19DB-4D12-8005-90916F84A166}.Executable|x86.ActiveCfg = Executable|Win32
+		{0BEEA9BC-19DB-4D12-8005-90916F84A166}.Executable|x86.Build.0 = Executable|Win32
 		{0BEEA9BC-19DB-4D12-8005-90916F84A166}.Release|x64.ActiveCfg = Release|x64
 		{0BEEA9BC-19DB-4D12-8005-90916F84A166}.Release|x64.Build.0 = Release|x64
 		{0BEEA9BC-19DB-4D12-8005-90916F84A166}.Release|x86.ActiveCfg = Release|Win32

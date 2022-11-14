@@ -152,23 +152,46 @@ cv::Mat System::Execute(const string& imagePath, const double& timestamp) {
         cerr << endl << "Failed to load image at: "
             << imagePath << endl;
     }
-//#ifdef COMPILEDWITHC11
-//    std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
-//#else
-//    std::chrono::monotonic_clock::time_point t1 = std::chrono::monotonic_clock::now();
-//#endif
-//
-//    // Pass the image to the SLAM system
-//
-//#ifdef COMPILEDWITHC11
-//    std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
-//#else
-//    std::chrono::monotonic_clock::time_point t2 = std::chrono::monotonic_clock::now();
-//#endif
-//
-//    double ttrack = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count();   
+    //#ifdef COMPILEDWITHC11
+    //    std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
+    //#else
+    //    std::chrono::monotonic_clock::time_point t1 = std::chrono::monotonic_clock::now();
+    //#endif
+    //
+    //    // Pass the image to the SLAM system
+    //
+    //#ifdef COMPILEDWITHC11
+    //    std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
+    //#else
+    //    std::chrono::monotonic_clock::time_point t2 = std::chrono::monotonic_clock::now();
+    //#endif
+    //
+    //    double ttrack = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count();   
 
-    return TrackMonocular(im, timestamp); // TODO change to monocular_inertial
+    return TrackMonocular(im, timestamp);
+}
+
+cv::Mat System::Execute(const string& imagePath, const double& timestamp, const vector<IMU::Point>& vImuMeas) {
+    // Main loop
+    cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE(3.0, cv::Size(8, 8));
+
+    cv::Mat im;
+    // Read image from file
+    im = cv::imread(imagePath, cv::IMREAD_GRAYSCALE);
+
+    // clahe
+    clahe->apply(im, im);
+
+
+    // cout << "mat type: " << im.type() << endl;
+
+    if (im.empty())
+    {
+        cerr << endl << "Failed to load image at: "
+            << imagePath << endl;
+    }
+    
+    return TrackMonocular(im, timestamp, vImuMeas);
 }
 
 cv::Mat System::Execute(const cv::Mat& image, const double& timestamp) {
@@ -197,7 +220,21 @@ cv::Mat System::Execute(const cv::Mat& image, const double& timestamp) {
     //
     //    double ttrack = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1).count();   
 
-    return TrackMonocular(grayImage, timestamp); // TODO change to monocular_inertial
+    return TrackMonocular(grayImage, timestamp);
+}
+
+cv::Mat System::Execute(const cv::Mat& image, const double& timestamp, const vector<IMU::Point>& vImuMeas) {
+    // Main loop
+    cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE(3.0, cv::Size(8, 8));
+
+    cv::Mat grayImage(image.rows, image.cols, CV_8UC1);
+    cv::cvtColor(image, grayImage, cv::COLOR_RGBA2GRAY);
+
+    // clahe
+    clahe->apply(grayImage, grayImage);
+
+    //vector<ORB_SLAM3::IMU::Point> vImuMeas;
+    return TrackMonocular(grayImage, timestamp, vImuMeas);
 }
 
 
@@ -612,7 +649,7 @@ void System::Shutdown()
 {
     mpLocalMapper->RequestFinish();
     mpLoopCloser->RequestFinish();
-    if(mpViewer)
+    if(mpViewer != nullptr)
     {
         mpViewer->RequestFinish();
         while(!mpViewer->isFinished())
@@ -634,7 +671,7 @@ void System::Shutdown()
         usleep(5000);
     }
 
-    if(mpViewer)
+    if(mpViewer != nullptr)
         pangolin::BindToContext("ORB-SLAM2: Map Viewer");
 }
 

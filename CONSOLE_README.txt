@@ -1,1 +1,3 @@
 slam.exe mono_inertial_tum_vi Vocabulary/ORBvoc.txt Examples/Monocular-Inertial/TUM_512.yaml A:/Datasets/dataset-corridor1_512_16/mav0/cam0/data Examples/Monocular-Inertial/TUM_TimeStamps/dataset-corridor1_512.txt Examples/Monocular-Inertial/TUM_IMU/dataset-corridor1_512.txt dataset-corridor1_512_monoi > log/log113_tum_vi_mono_inertial_Corridor_2.txt
+
+./x64/Release/executable/slam.exe mono_inertial_tum_vi Vocabulary/ORBvoc.txt Examples/Monocular-Inertial/TUM_512.yaml A:/Datasets/dataset-corridor1_512_16/mav0/cam0/data Examples/Monocular-Inertial/TUM_TimeStamps/dataset-corridor1_512.txt Examples/Monocular-Inertial/TUM_IMU/dataset-corridor1_512.txt dataset-corridor1_512_monoi
